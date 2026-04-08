@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
-export default async function middleware(req: any) {
+export default async function proxy(req: any) {
   const session = await auth();
 
   const { pathname } = req.nextUrl;
