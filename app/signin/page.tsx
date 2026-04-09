@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
+import IOSInstallPrompt from "@/components/IOSInstallPrompt";
 
 export default async function SignInPage() {
   const session = await auth();
@@ -12,6 +13,7 @@ export default async function SignInPage() {
 
   return (
     <main className="min-h-screen bg-black px-4 py-8 text-white sm:px-6 lg:px-8">
+      <IOSInstallPrompt />
       <div className="mx-auto grid min-h-[80vh] max-w-6xl overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] lg:grid-cols-2">
         <section className="hidden border-r border-white/10 bg-gradient-to-br from-zinc-950 via-black to-zinc-900 p-10 lg:flex lg:flex-col lg:justify-between">
           <div>

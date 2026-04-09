@@ -1,8 +1,7 @@
-const CACHE_NAME = "tripfly-v2";
+const CACHE_NAME = "tripfly-v3";
 const APP_SHELL = [
   "/",
   "/signin",
-  "/trips",
   "/icons/launchericon-192x192.png",
   "/icons/launchericon-512x512.png",
   "/apple-touch-icon.png",
@@ -37,28 +36,43 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  const requestUrl = new URL(event.request.url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        const cachedPage =
+          (await caches.match(event.request)) || (await caches.match("/signin"));
+        return cachedPage || Response.error();
+      })
+    );
+    return;
+  }
+
+  const isStaticAsset =
+    event.request.destination === "script" ||
+    event.request.destination === "style" ||
+    event.request.destination === "font" ||
+    event.request.destination === "image";
+
+  if (!isSameOrigin || !isStaticAsset) return;
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
+      const networkFetch = fetch(event.request)
         .then((networkResponse) => {
-          const responseClone = networkResponse.clone();
-
-          if (event.request.url.startsWith(self.location.origin)) {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseClone);
             });
           }
-
           return networkResponse;
         })
-        .catch(async () => {
-          const fallback = await caches.match("/");
-          return fallback || Response.error();
-        });
+        .catch(() => cachedResponse);
+
+      return cachedResponse || networkFetch;
     })
   );
 });
