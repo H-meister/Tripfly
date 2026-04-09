@@ -1,4 +1,5 @@
 import Link from "next/link";
+import IOSInstallPrompt from "@/components/IOSInstallPrompt";
 
 type Trip = {
   id: string;
@@ -62,6 +63,7 @@ const quickLinks = [
 export default function Home() {
   return (
     <main className="min-h-screen px-4 py-6 pb-28 sm:px-6 lg:px-10 lg:py-10 lg:pb-10">
+      <IOSInstallPrompt />
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.3fr_0.9fr]">
         <section className="space-y-6">
           <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.03] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.35)] sm:p-8">
