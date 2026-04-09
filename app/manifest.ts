@@ -5,8 +5,11 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "TripFly",
     short_name: "TripFly",
     description: "A trip planning PWA for you and your friends",
+    id: "/",
     start_url: "/signin",
+    scope: "/",
     display: "standalone",
+    orientation: "portrait",
     background_color: "#ffffff",
     theme_color: "#0f172a",
     icons: [
@@ -16,12 +19,12 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
       {
-        src: "/icons/icon-512x512.png",
+        src: "/icons/launchericon-512x512.png",
         sizes: "512x512",
         type: "image/png",
       },
       {
-        src: "../public/apple-touch-icon.png",
+        src: "/apple-touch-icon.png",
         sizes: "180x180",
         type: "image/png",
       },

@@ -1,17 +1,22 @@
-const CACHE_NAME = "tripfly-v1";
+const CACHE_NAME = "tripfly-v2";
 const APP_SHELL = [
   "/",
   "/signin",
   "/trips",
-  "/icons/icon-192x192.png",
-  "/icons/icon-512x512.png",
+  "/icons/launchericon-192x192.png",
+  "/icons/launchericon-512x512.png",
   "/apple-touch-icon.png",
   "/manifest.webmanifest",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .catch((error) => {
+        console.error("Cache warmup failed:", error);
+      })
   );
   self.skipWaiting();
 });
@@ -51,7 +56,7 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          const fallback = await caches.match("/signin");
+          const fallback = await caches.match("/");
           return fallback || Response.error();
         });
     })
