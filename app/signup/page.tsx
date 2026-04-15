@@ -1,18 +1,17 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AuthError } from "next-auth";
-import { auth, signIn } from "@/auth";
+import { auth } from "@/auth";
 import IOSInstallPrompt from "@/components/IOSInstallPrompt";
+import { createSupabaseServerClient } from "@/lib/supabaseClient";
 
-type SignInSearchParams = Promise<{
+type SignUpSearchParams = Promise<{
   error?: string;
-  message?: string;
 }>;
 
-export default async function SignInPage({
+export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: SignInSearchParams;
+  searchParams: SignUpSearchParams;
 }) {
   const session = await auth();
 
@@ -20,7 +19,7 @@ export default async function SignInPage({
     redirect("/");
   }
 
-  const { error, message } = await searchParams;
+  const { error } = await searchParams;
 
   return (
     <main className="min-h-screen bg-black px-4 py-8 text-white sm:px-6 lg:px-8">
@@ -32,13 +31,13 @@ export default async function SignInPage({
               TripFly
             </p>
             <h1 className="mt-4 text-4xl font-bold tracking-tight text-white">
-              Travel planning,
+              Create your account,
               <br />
-              all in one place.
+              start planning faster.
             </h1>
             <p className="mt-4 max-w-md text-sm leading-7 text-zinc-400">
-              Organize trips, build itineraries, track budgets, and manage
-              packing lists.
+              Sign up with your email and password to save trips, itineraries,
+              and budgets securely.
             </p>
           </div>
         </section>
@@ -46,24 +45,18 @@ export default async function SignInPage({
         <section className="flex items-center justify-center p-6 sm:p-10">
           <div className="w-full max-w-md">
             <div className="mb-8">
-              <p className="text-sm text-zinc-500">Welcome back</p>
+              <p className="text-sm text-zinc-500">Welcome to TripFly</p>
               <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-                Sign in to TripFly
+                Create your account
               </h2>
               <p className="mt-2 text-sm text-zinc-400">
-                Use your email and password to access your trips.
+                Use your name, email, and password to create your login.
               </p>
             </div>
 
-            {message === "AccountCreated" ? (
-              <p className="mb-5 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
-                Account created successfully. You can now sign in.
-              </p>
-            ) : null}
-
-            {error === "InvalidCredentials" ? (
+            {error ? (
               <p className="mb-5 rounded-2xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
-                Invalid email or password. Please try again.
+                {decodeURIComponent(error)}
               </p>
             ) : null}
 
@@ -71,21 +64,47 @@ export default async function SignInPage({
               action={async (formData) => {
                 "use server";
 
-                try {
-                  await signIn("credentials", {
-                    email: formData.get("email"),
-                    password: formData.get("password"),
-                    redirectTo: "/",
-                  });
-                } catch (error) {
-                  if (error instanceof AuthError) {
-                    redirect("/signin?error=InvalidCredentials");
-                  }
-                  throw error;
+                const name = String(formData.get("name") ?? "").trim();
+                const email = String(formData.get("email") ?? "").trim();
+                const password = String(formData.get("password") ?? "");
+
+                const supabase = createSupabaseServerClient();
+                const { error } = await supabase.auth.signUp({
+                  email,
+                  password,
+                  options: {
+                    data: {
+                      name,
+                    },
+                  },
+                });
+
+                if (error) {
+                  redirect(`/signup?error=${encodeURIComponent(error.message)}`);
                 }
+
+                redirect("/signin?message=AccountCreated");
               }}
               className="space-y-5"
             >
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-2 block text-sm font-medium text-zinc-300"
+                >
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Jane Doe"
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-white/20"
+                  minLength={2}
+                  required
+                />
+              </div>
+
               <div>
                 <label
                   htmlFor="email"
@@ -114,8 +133,9 @@ export default async function SignInPage({
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Your password"
+                  placeholder="At least 8 characters"
                   className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-white/20"
+                  minLength={8}
                   required
                 />
               </div>
@@ -124,20 +144,14 @@ export default async function SignInPage({
                 type="submit"
                 className="w-full rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-black transition hover:scale-[1.01]"
               >
-                Sign In
+                Create Account
               </button>
             </form>
 
             <div className="mt-6 text-sm text-zinc-500">
-              Need an account?{" "}
-              <Link href="/signup" className="text-white transition hover:text-zinc-300">
-                Create one
-              </Link>
-            </div>
-
-            <div className="mt-6 text-sm text-zinc-500">
-              <Link href="/" className="transition hover:text-white">
-                ← Back to home
+              Already have an account?{" "}
+              <Link href="/signin" className="text-white transition hover:text-zinc-300">
+                Sign in
               </Link>
             </div>
           </div>
