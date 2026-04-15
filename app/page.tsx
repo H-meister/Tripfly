@@ -73,12 +73,10 @@ export default function Home() {
                   TripFly
                 </p>
                 <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
-                  Plan your next adventure in one place.
+                  Welcome, (Insert Name Here).
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-zinc-400 sm:text-base">
-                  Build itineraries, manage your budget, keep a packing list,
-                  and organize trips with a layout that feels like an app on
-                  mobile and a dashboard on desktop.
+                  Lets see whats on the horizon for your travel plans.
                 </p>
               </div>
 
