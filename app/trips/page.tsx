@@ -97,6 +97,8 @@ export default async function TripsPage() {
     throw new Error(error.message);
   }
 
+  const typedTrips = (trips ?? []) as StoredTrip[];
+
   return (
     <main className="space-y-8 p-6 text-white">
       <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_12px_30px_rgba(0,0,0,0.28)]">
@@ -161,8 +163,8 @@ export default async function TripsPage() {
         </p>
 
         <div className="mt-5 grid gap-4">
-          {(trips as StoredTrip[] | null)?.length ? (
-            trips?.map((trip) => (
+          {typedTrips.length ? (
+            typedTrips.map((trip) => (
               <article
                 key={trip.id}
                 className="rounded-2xl border border-white/10 bg-black/40 p-5"
@@ -179,7 +181,7 @@ export default async function TripsPage() {
 
                 <div className="mt-4 grid gap-3">
                   {trip.flight_options?.length ? (
-                    trip.flight_options.map((flight, index) => (
+                    trip.flight_options.map((flight: FlightOption, index: number) => (
                       <div
                         key={`${trip.id}-flight-${index}`}
                         className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm"
